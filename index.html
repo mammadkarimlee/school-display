@@ -28,32 +28,56 @@ img {
 </head>
 <body>
 
-<div id="screen"></div>
+<div id="screen">Yüklənir...</div>
 
 <script>
-// Əl ilə elanları daxil edirik
-const items = [
-  { type: "text", title: "ELAN", text: "Sabah valideyn iclası olacaq", duration: 5 },
-  { type: "text", title: "GÜNÜN SUALI", text: "2 + 2 = ?", duration: 5 },
-  { type: "image", title: "", text: "", image: "https://via.placeholder.com/800x400.png?text=Reklam+və+Elan", duration: 5 }
-];
+// Google Sheet ID
+const SHEET_ID = "15ki7QHp7im0db6WGmUDjR8vxm-LP4l0FXhMQ8s8egUU";
+// Sheet adı
+const SHEET_NAME = "Sheet1";
+// Opensheet.elk.sh URL
+const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
 
+let items = [];
 let index = 0;
-const screen = document.getElementById("screen");
 
+// Sheet-dən məlumatları çəkmək
+async function loadData() {
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    // yalnız aktiv olanları götür
+    items = data.filter(i => i.active === "1");
+    index = 0;
+    show();
+  } catch(e) {
+    document.getElementById("screen").innerText = "Bağlantı yoxdur";
+  }
+}
+
+// Ekranda göstərmək
 function show() {
+  if (items.length === 0) return;
+
   const item = items[index];
-  if(item.type === "image") {
-    screen.innerHTML = `<img src="${item.image}" alt="Elan">`;
+  const screen = document.getElementById("screen");
+
+  if(item.type === "image" && item.image) {
+    screen.innerHTML = `<img src="${item.image}">`;
   } else {
     screen.innerHTML = `<div><b>${item.title}</b><br><br>${item.text}</div>`;
   }
-  index = (index + 1) % items.length;
-  setTimeout(show, item.duration * 1000);
+
+  setTimeout(() => {
+    index = (index + 1) % items.length;
+    show();
+  }, Number(item.duration) * 1000);
 }
 
-// Başlat
-show();
+// İlk yükləmə
+loadData();
+// Sheet-i hər 60 saniyədə yenilə
+setInterval(loadData, 60000);
 </script>
 
 </body>
