@@ -33,9 +33,9 @@ img {
 <script>
 // Google Sheet ID
 const SHEET_ID = "15ki7QHp7im0db6WGmUDjR8vxm-LP4l0FXhMQ8s8egUU";
-// Sheet adı
+// Sheet adı (tam olaraq Google Sheet-də görünən adı)
 const SHEET_NAME = "Sheet1";
-// Opensheet.elk.sh URL
+// JSON API linki
 const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
 
 let items = [];
@@ -46,10 +46,16 @@ async function loadData() {
   try {
     const res = await fetch(url);
     const data = await res.json();
-    // yalnız aktiv olanları götür
-    items = data.filter(i => i.active === "1");
-    index = 0;
-    show();
+
+    // JSON boş deyil və aktiv olanları götür
+    if(Array.isArray(data) && data.length > 0) {
+      items = data.filter(i => i.active === "1");
+      index = 0;
+      show();
+    } else {
+      document.getElementById("screen").innerText = "Sheet boş və ya səhv!";
+    }
+
   } catch(e) {
     document.getElementById("screen").innerText = "Bağlantı yoxdur";
   }
@@ -63,11 +69,12 @@ function show() {
   const screen = document.getElementById("screen");
 
   if(item.type === "image" && item.image) {
-    screen.innerHTML = `<img src="${item.image}">`;
-  } else {
+    screen.innerHTML = `<img src="${item.image}" alt="Elan">`;
+  } else if(item.type === "text") {
     screen.innerHTML = `<div><b>${item.title}</b><br><br>${item.text}</div>`;
   }
 
+  // Növbəti item-ə keçmək
   setTimeout(() => {
     index = (index + 1) % items.length;
     show();
