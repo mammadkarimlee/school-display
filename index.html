@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>School Display</title>
+<style>
+body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+#screen {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 60px;
+  padding: 40px;
+}
+img {
+  max-width: 100%;
+  max-height: 100%;
+}
+</style>
+</head>
+<body>
+
+<div id="screen"></div>
+
+<script>
+// Əl ilə elanları daxil edirik
+const items = [
+  { type: "text", title: "ELAN", text: "Sabah valideyn iclası olacaq", duration: 5 },
+  { type: "text", title: "GÜNÜN SUALI", text: "2 + 2 = ?", duration: 5 },
+  { type: "image", title: "", text: "", image: "https://via.placeholder.com/800x400.png?text=Reklam+və+Elan", duration: 5 }
+];
+
+let index = 0;
+const screen = document.getElementById("screen");
+
+function show() {
+  const item = items[index];
+  if(item.type === "image") {
+    screen.innerHTML = `<img src="${item.image}" alt="Elan">`;
+  } else {
+    screen.innerHTML = `<div><b>${item.title}</b><br><br>${item.text}</div>`;
+  }
+  index = (index + 1) % items.length;
+  setTimeout(show, item.duration * 1000);
+}
+
+// Başlat
+show();
+</script>
+
+</body>
+</html>
